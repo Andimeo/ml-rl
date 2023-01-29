@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 
 import dqn
-import params
+
 
 Experience = collections.namedtuple('Experience', field_names=[
                                     'state', 'action', 'reward', 'done', 'new_state'])
@@ -37,8 +37,9 @@ class AgentMode(enum.Enum):
 
 
 class Agent:
-    def __init__(self, env, mode=AgentMode.TRAIN, device='cpu', **kwargs) -> None:
+    def __init__(self, env, params, mode=AgentMode.TRAIN, device='cpu', **kwargs) -> None:
         self.env = env
+        self.batch_size = params.BATCH_SIZE
         self.mode = mode
         self.device = device
 
@@ -112,7 +113,7 @@ class Agent:
         return nn.MSELoss()(state_action_values, expected_state_action_values)
 
     def train(self):
-        batch = self.exp_buffer.sample(params.BATCH_SIZE)
+        batch = self.exp_buffer.sample(self.batch_size)
         loss_t = self.calc_loss(batch)
 
         self.optimizer.zero_grad()

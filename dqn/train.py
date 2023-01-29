@@ -4,13 +4,12 @@ import tracemalloc
 import numpy as np
 import torch
 
-import agent
-import params
+from dqn import agent
 
 
-def train(env, device):
+def train(env, params, device):
     tracemalloc.start()
-    ag = agent.Agent(env, mode=agent.AgentMode.TRAIN, device=device)
+    ag = agent.Agent(env, params, mode=agent.AgentMode.TRAIN, device=device)
     epsilon = params.EPSILON_START
 
     total_rewards = []
@@ -32,7 +31,7 @@ def train(env, device):
                 print('%d: done %d games, mean reward %.3f, eps %.2f, speed %.2f f/s' %
                     (frame_idx, len(total_rewards), mean_reward, epsilon, speed))
             if best_mean_reward is None or best_mean_reward < mean_reward:
-                torch.save(ag.net.state_dict(),  f"Riverraid-{mean_reward:.2f}.dat")
+                torch.save(ag.net.state_dict(),  f"{env.metadata['name']}-{mean_reward:.2f}.dat")
                 if best_mean_reward is not None:
                     print(f"Best mean reward updated {best_mean_reward:.3f} -> {mean_reward:.3f}, model saved")
                 best_mean_reward = mean_reward
